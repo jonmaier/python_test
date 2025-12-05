@@ -5,6 +5,48 @@ from typing import Any
 import httpx
 
 
+def _build_payload(
+    query: str,
+    variables: dict[str, Any] | None = None,
+    operation_name: str | None = None,
+) -> dict[str, Any]:
+    """Build the GraphQL request payload.
+
+    Args:
+        query: The GraphQL query or mutation string.
+        variables: Optional variables for the query.
+        operation_name: Optional operation name.
+
+    Returns:
+        The request payload as a dictionary.
+    """
+    payload: dict[str, Any] = {"query": query}
+    if variables:
+        payload["variables"] = variables
+    if operation_name:
+        payload["operationName"] = operation_name
+    return payload
+
+
+def _merge_headers(
+    base_headers: dict[str, str],
+    override_headers: dict[str, str] | None = None,
+) -> dict[str, str]:
+    """Merge base headers with override headers.
+
+    Args:
+        base_headers: The base headers.
+        override_headers: Optional headers to merge.
+
+    Returns:
+        The merged headers.
+    """
+    merged = {**base_headers}
+    if override_headers:
+        merged.update(override_headers)
+    return merged
+
+
 class GraphQLClient:
     """A GraphQL client for making GraphQL queries and mutations."""
 
@@ -37,15 +79,8 @@ class GraphQLClient:
         Returns:
             The response data as a dictionary.
         """
-        payload: dict[str, Any] = {"query": query}
-        if variables:
-            payload["variables"] = variables
-        if operation_name:
-            payload["operationName"] = operation_name
-
-        request_headers = {**self.headers}
-        if headers:
-            request_headers.update(headers)
+        payload = _build_payload(query, variables, operation_name)
+        request_headers = _merge_headers(self.headers, headers)
 
         response = self._client.post(
             self.endpoint,
@@ -137,15 +172,8 @@ class AsyncGraphQLClient:
         Returns:
             The response data as a dictionary.
         """
-        payload: dict[str, Any] = {"query": query}
-        if variables:
-            payload["variables"] = variables
-        if operation_name:
-            payload["operationName"] = operation_name
-
-        request_headers = {**self.headers}
-        if headers:
-            request_headers.update(headers)
+        payload = _build_payload(query, variables, operation_name)
+        request_headers = _merge_headers(self.headers, headers)
 
         response = await self._client.post(
             self.endpoint,

@@ -21,6 +21,17 @@ class RestClient:
         if headers:
             self.session.headers.update(headers)
 
+    def _build_url(self, endpoint: str) -> str:
+        """Build the full URL for an endpoint.
+
+        Args:
+            endpoint: The API endpoint (will be appended to base_url).
+
+        Returns:
+            The full URL.
+        """
+        return f"{self.base_url}/{endpoint.lstrip('/')}"
+
     def get(
         self,
         endpoint: str,
@@ -37,8 +48,7 @@ class RestClient:
         Returns:
             The response object.
         """
-        url = f"{self.base_url}/{endpoint.lstrip('/')}"
-        return self.session.get(url, params=params, headers=headers)
+        return self.session.get(self._build_url(endpoint), params=params, headers=headers)
 
     def post(
         self,
@@ -58,8 +68,7 @@ class RestClient:
         Returns:
             The response object.
         """
-        url = f"{self.base_url}/{endpoint.lstrip('/')}"
-        return self.session.post(url, json=json, data=data, headers=headers)
+        return self.session.post(self._build_url(endpoint), json=json, data=data, headers=headers)
 
     def put(
         self,
@@ -79,8 +88,7 @@ class RestClient:
         Returns:
             The response object.
         """
-        url = f"{self.base_url}/{endpoint.lstrip('/')}"
-        return self.session.put(url, json=json, data=data, headers=headers)
+        return self.session.put(self._build_url(endpoint), json=json, data=data, headers=headers)
 
     def patch(
         self,
@@ -100,8 +108,7 @@ class RestClient:
         Returns:
             The response object.
         """
-        url = f"{self.base_url}/{endpoint.lstrip('/')}"
-        return self.session.patch(url, json=json, data=data, headers=headers)
+        return self.session.patch(self._build_url(endpoint), json=json, data=data, headers=headers)
 
     def delete(
         self,
@@ -117,8 +124,7 @@ class RestClient:
         Returns:
             The response object.
         """
-        url = f"{self.base_url}/{endpoint.lstrip('/')}"
-        return self.session.delete(url, headers=headers)
+        return self.session.delete(self._build_url(endpoint), headers=headers)
 
     def close(self) -> None:
         """Close the session."""
